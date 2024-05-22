@@ -17,7 +17,7 @@
 # -----
 # @copyright (c) 2022 Mellow
 
-VERSION="v0.0.5"
+VERSION="v0.0.6"
 
 BASE_USER="fly"
 
@@ -81,50 +81,50 @@ KPYTHON="${KP_ENV_DIR}/bin/python"
 HIDFLASH="${KP_DIR}/lib/hidflash/hid-flash"
 if [ ! -e "$HIDFLASH" ]; then
     cd "${KP_DIR}/lib/hidflash"
-    make >/dev/null
-    cp -rf $HIDFLASH /bin/hid-flash
-    sudo chmod -R 777 /bin/hid-flash
+    sudo make >/dev/null
+    sudo cp -rf $HIDFLASH /usr/bin/hid-flash
+    sudo chmod -R 777 /usr/bin/hid-flash
 fi
-if [ ! -e "/bin/hid-flash" ]; then
+if [ ! -e "/usr/bin/hid-flash" ]; then
     cd "${KP_DIR}/lib/hidflash"
-    make >/dev/null
-    cp -rf $HIDFLASH /bin/hid-flash
-    sudo chmod 777 /bin/hid-flash
+    sudo make >/dev/null
+    sudo cp -rf $HIDFLASH /usr/bin/hid-flash
+    sudo chmod 777 /usr/bin/hid-flash
 fi
 
 init() {
     G_RST="/sys/class/gpio/gpio${RST}"
     G_BOOT1="/sys/class/gpio/gpio${BT1}"
     if [ ! -d "${G_RST}" ]; then
-        echo "${RST}" >$G_EXPORT
+        echo "${RST}" | sudo tee "${G_EXPORT}" >/dev/null
     # else
     #     echo "GPIO(RST)已经存在"
     fi
 
     if [ ! -d "${G_BOOT1}" ]; then
-        echo "${BT1}" >$G_EXPORT
+        echo "${BT1}" | sudo tee "${G_EXPORT}" >/dev/null
     # else
     #     echo "GPIO(BT1)已经存在"
     fi
 
-    echo "out" >"${G_RST}/direction"
-    echo "out" >"${G_BOOT1}/direction"
+    echo "out" | sudo tee "${G_RST}/direction" >/dev/null
+    echo "out" | sudo tee "${G_BOOT1}/direction" >/dev/null
 }
 
 RST_LOW() {
-    echo "0" >"${G_RST}/value"
+    echo "0" | sudo tee "${G_RST}/value" >/dev/null
 }
 
 RST_HIGH() {
-    echo "1" >"${G_RST}/value"
+    echo "1" | sudo tee "${G_RST}/value" >/dev/null
 }
 
 BOOT1_LOW() {
-    echo "0" >"${G_BOOT1}/value"
+    echo "0" | sudo tee "${G_BOOT1}/value" >/dev/null
 }
 
 BOOT1_HIGH() {
-    echo "0" >"${G_BOOT1}/value"
+    echo "1" | sudo tee "${G_BOOT1}/value" >/dev/null
 }
 
 reset() {
@@ -285,7 +285,7 @@ flash() {
         sleep 0.1
         logi EN "Start HID flash"
         logi CN "开始HID烧录"
-        hid-flash $filepath
+        sudo hid-flash $filepath
     elif [ "${flash_mode}" == "dfu" ]; then
         dfu
 
